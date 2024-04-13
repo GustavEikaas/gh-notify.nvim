@@ -290,6 +290,14 @@ M.setup = function(opts)
     end
   }
 
+
+  M.list = commands.list
+  M.assigned = commands.assigned
+  M.mention = commands.mention
+  M.reviews = commands.reviews
+  M.refresh = commands.refresh
+
+
   vim.api.nvim_create_user_command('GhNotify',
     function(commandOpts)
       local subcommand = commandOpts.fargs[1]
