@@ -215,6 +215,8 @@ function M:on_event(data)
   local repo_name = extract_repository_name(repo_url)
   local newNotifications = filterNotifications(notifications)
 
+
+  local processed_messages = {}
   for _, value in pairs(newNotifications) do
     local context = {
       reason = value.reason,
@@ -224,8 +226,9 @@ function M:on_event(data)
     }
     local msg = message_router(value, context)
     table.insert(M.state.messages, msg)
-    M.opts.on_message(msg)
+    table.insert(processed_messages, msg)
   end
+  M.opts.on_messages(processed_messages, M.state.messages)
 end
 
 ---
@@ -273,11 +276,14 @@ M.setup = function(opts)
     list = function()
       M.list_messages()
     end,
+    mention = function()
+      M.list_messages(function(i) return i.context.reason == "mention" end)
+    end,
+    assigned = function()
+      M.list_messages(function(i) return i.context.reason == "assign" end)
+    end,
     reviews = function()
-      M.list_messages(function(i)
-        local reason = i.context.reason
-        return reason == "review_requested"
-      end)
+      M.list_messages(function(i) return i.context.reason == "review_requested" end)
     end,
     refresh = function()
       M.refresh()
