@@ -1,7 +1,9 @@
 local messages = require("gh-notify.messages")
 
 --- @class Context
---- @field repoName string
+--- @field repoName string -- e.g gh-notify.nvim
+--- @field owner string -- e.g GustavEikaas
+--- @field full_name string -- e.g GustavEikaas/gh-notify.nvim
 --- @field type "PullRequest"|"Issue"
 --- @field reason string
 --- @field is_from_this_repo boolean
@@ -203,6 +205,9 @@ local function extract_repository_name(url)
 end
 
 local function trim(s)
+  if s == nil then
+    return nil
+  end
   return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
@@ -219,6 +224,8 @@ function M:on_event(data)
   local processed_messages = {}
   for _, value in pairs(newNotifications) do
     local context = {
+      owner = value.repository.owner.login,
+      full_name = value.repository.full_name,
       reason = value.reason,
       type = value.subject.type,
       repoName = value.repository.name,
@@ -236,21 +243,33 @@ end
 M.list_messages = function(filter)
   local filtered_messages = {}
   for key, value in pairs(M.state.messages) do
-    if value.context.is_from_this_repo == true and (filter == nil or filter(value)) then
+    if (filter == nil or filter(value)) then
       table.insert(filtered_messages, value)
     end
   end
   if #filtered_messages == 0 then
-    vim.notify("No notifications from this repo")
+    vim.notify("No unread notifications to show")
     return
   end
   require("gh-notify.telescope").picker(nil, filtered_messages, function(selected_entry)
     if selected_entry.context.type == "PullRequest" and selected_entry.number ~= nil then
-      vim.cmd("Octo pr edit " .. selected_entry.number)
+      if selected_entry.context.is_from_this_repo == false then
+        local url = string.format("https://github.com/%s/pull/%d", selected_entry.context.full_name,
+          selected_entry.number)
+        vim.cmd("Octo " .. url)
+      else
+        vim.cmd("Octo pr edit " .. selected_entry.number)
+      end
     elseif selected_entry.context.type == "Issue" and selected_entry.number ~= nil then
-      vim.cmd("Octo issue edit " .. selected_entry.number)
+      if selected_entry.context.is_from_this_repo == false then
+        local url = string.format("https://github.com/%s/issues/%d", selected_entry.context.full_name,
+          selected_entry.number)
+        vim.cmd("Octo " .. url)
+      else
+        vim.cmd("Octo issue edit " .. selected_entry.number)
+      end
     else
-      os.execute("start " .. selected_entry.url)
+      vim.cmd("Octo " .. selected_entry.url)
     end
   end, "Notifications")
 end
