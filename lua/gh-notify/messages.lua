@@ -63,6 +63,21 @@ M.team_mention = function(title, context)
   return { format_message(display, title, context), number = nil, url = "", display = display }
 end
 
+---@param value table
+---@param context Context
+---@return Message
+M.subscribed = function(value, context)
+  local url = value.subject.url
+  local number = extract_pr_number_from_url(url)
+  local msg = "Subcribed to " .. value.subject.type .. "#" .. number
+  return {
+    message = format_message(msg, value.subject.title, context),
+    url = url,
+    number = number,
+    display = value.subject.title
+  }
+end
+
 ---@param title string
 ---@param context Context
 ---@return Message

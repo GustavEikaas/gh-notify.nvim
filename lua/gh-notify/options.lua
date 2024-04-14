@@ -1,6 +1,6 @@
 return {
   polling = true,
-  polling_interval = 60000 * 5,
+  polling_interval = 10000, --60000 * 5,
   ---@param notifications table Message
   on_messages = function(notifications, all_notifications)
     -- First batch of messages

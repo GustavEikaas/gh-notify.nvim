@@ -37,6 +37,7 @@ function M.refresh(on_settled)
     on_stdout = M.on_event,
     stdout_buffered = true,
     on_exit = function()
+      vim.notify("Finished")
       if on_settled then
         on_settled()
       end
@@ -167,7 +168,14 @@ local function message_router(value, context)
     return update_message(msg, team_mention)
   elseif reason == "subscribed" then
     -- You're watching the repository.
+    -- e.g someone created an issue
+    local subscribed = messages.subscribed(value, context)
+    return update_message(msg, subscribed)
   end
+
+  require("gh-notify.debugger").write_to_log("Unhandled -----------------")
+  require("gh-notify.debugger").write_to_log(value)
+  require("gh-notify.debugger").write_to_log("---------------------------")
 
   return update_message(msg,
     {
@@ -287,7 +295,7 @@ end
 
 M.setup = function(opts)
   M.opts = merge_tables(require("gh-notify.options"), opts or {})
-  if M.opts.polling then
+  if M.opts.polling == true then
     M:start()
   end
 
@@ -304,9 +312,6 @@ M.setup = function(opts)
     reviews = function()
       M.list_messages(function(i) return i.context.reason == "review_requested" end)
     end,
-    refresh = function()
-      M.refresh()
-    end
   }
 
 
@@ -314,7 +319,6 @@ M.setup = function(opts)
   M.assigned = commands.assigned
   M.mention = commands.mention
   M.reviews = commands.reviews
-  M.refresh = commands.refresh
 
 
   vim.api.nvim_create_user_command('GhNotify',
