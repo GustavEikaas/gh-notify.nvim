@@ -37,7 +37,6 @@ function M.refresh(on_settled)
     on_stdout = M.on_event,
     stdout_buffered = true,
     on_exit = function()
-      vim.notify("Finished")
       if on_settled then
         on_settled()
       end
