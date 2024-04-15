@@ -25,6 +25,9 @@ Supports the following events
 - [x] team_mention
 - [x] subscribed
 
+
+- [ ] Mark notifications as read
+
 ## Setup
 
 ```lua

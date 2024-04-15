@@ -3,7 +3,7 @@ local M = {}
 ---
 ---@param value Message
 local function generate_display(value)
-  return string.format("%s [%s] #%d %s | %s | %s", value.type_icon, value.context.reason, value.number, value.display, value.context.full_name, value.context.timestamp)
+  return string.format("%s [%s] #%d %s |%s |%s", value.type_icon, value.context.reason, value.number, value.display, value.context.full_name, value.context.timestamp)
 end
 
 
