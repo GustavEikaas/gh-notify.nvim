@@ -7,6 +7,27 @@ Not much too see here right now, but come back later and have a look
 Get github notifications directly in neovim. Show, list, act on notifications directly from within neovim.
 
 
+## Features
+
+Supports the following events
+
+- [x] Mentioned
+- [x] Assigned
+- [x] state_change
+- [ ] approval_requested
+- [ ] assign
+- [ ] author
+- [ ] comment
+- [ ] ci_activity
+- [ ] manual
+- [x] review_requested
+- [ ] security_alert
+- [x] team_mention
+- [x] subscribed
+
+
+- [ ] Mark notifications as read
+
 ## Setup
 
 ```lua

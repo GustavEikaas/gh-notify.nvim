@@ -1,5 +1,48 @@
 local messages = require("gh-notify.messages")
 
+--- @class Repo
+--- @field id number The ID of the repository
+--- @field node_id string
+--- @field name string The name of the repository
+--- @field full_name string The full name of the repository
+-- --- @field 'private' boolean Indicates if the repository is private or not
+--- @field owner User The owner of the repository
+--- @field html_url string The URL of the repository's HTML page
+--- @field description string The description of the repository
+--- @field fork boolean Indicates if the repository is a fork or not
+--- @field forks_url string The URL of the repository's forks
+--- @field keys_url string The URL of the repository's keys
+--- @field teams_url string The URL of the repository's teams
+--- @field hooks_url string The URL of the repository's hooks
+--- @field events_url string The URL of the repository's events
+--- @field assignees_url string The URL of the repository's assignees
+--- @field branches_url string The URL of the repository's branches
+--- @field tags_url string The URL of the repository's tags
+--- @field blobs_url string The URL of the repository's blobs
+--- @field git_tags_url string The URL of the repository's git tags
+--- @field git_refs_url string The URL of the repository's git refs
+--- @field trees_url string The URL of the repository's trees
+--- @field statuses_url string The URL of the repository's statuses
+--- @field languages_url string The URL of the repository's languages
+--- @field stargazers_url string The URL of the repository's stargazers
+--- @field contributors_url string The URL of the repository's contributors
+--- @field subscribers_url string The URL of the repository's subscribers
+--- @field subscription_url string The URL of the repository's subscription
+--- @field commits_url string The URL of the repository's commits
+--- @field git_commits_url string The URL of the repository's git commits
+--- @field comments_url string The URL of the repository's comments
+--- @field releases_url string The URL of the repository's releases
+--- @field deployments_url string The URL of the repository's deployments
+
+--- @class User
+--- @field login string The username of the user e.g., "bigdaddy69"
+--- @field id number The ID of the user
+--- @field node_id string
+--- @field avatar_url string The URL of the user's avatar image
+--- @field gravatar_id string
+--- @field type string The type of the user
+--- @field site_admin boolean Indicates if the user is a site administrator or not
+
 --- @class Context
 --- @field repoName string -- e.g gh-notify.nvim
 --- @field owner string -- e.g GustavEikaas
@@ -7,6 +50,8 @@ local messages = require("gh-notify.messages")
 --- @field type "PullRequest"|"Issue"
 --- @field reason string
 --- @field is_from_this_repo boolean
+--- @field repo Repo
+--- @field timestamp string
 
 --- @class Message
 --- @field context Context
@@ -184,9 +229,9 @@ local function message_router(value, context)
       url = "",
       context = context,
       id = value.id,
-      type_icon =
-      "",
-      reason_icon = ""
+      type_icon = "",
+      reason_icon = "",
+      timestamp = "??"
     })
 end
 
@@ -218,6 +263,38 @@ local function trim(s)
   return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
+local function convertToRelativeTimestamp(dateTimeString)
+  -- Parse the date and time components from the input string
+  local year, month, day, hour, min, sec = dateTimeString:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)Z")
+
+  -- Convert the components to numbers
+  year, month, day, hour, min, sec = tonumber(year), tonumber(month), tonumber(day), tonumber(hour), tonumber(min),
+      tonumber(sec)
+
+  -- Convert the input time to UTC
+  local utcTime = os.time({ year = year, month = month, day = day, hour = hour, min = min, sec = sec })
+
+  -- Calculate the current time in UTC
+  local currentTime = os.time()
+
+  -- Calculate the time difference in seconds
+  local timeDifference = currentTime - utcTime
+
+  -- Convert the time difference to a relative timestamp
+  if timeDifference < 60 then
+    return "just now"
+  elseif timeDifference < 3600 then
+    local minutes = math.floor(timeDifference / 60)
+    return minutes .. " mins ago"
+  elseif timeDifference < 86400 then
+    local hours = math.floor(timeDifference / 3600)
+    return hours .. " hours ago"
+  else
+    local days = math.floor(timeDifference / 86400)
+    return days .. " days ago"
+  end
+end
+
 function M:on_event(data)
   if data[1] == "" or data[1] == nil then
     return
@@ -231,6 +308,8 @@ function M:on_event(data)
   local processed_messages = {}
   for _, value in pairs(newNotifications) do
     local context = {
+      repo = value.repo,
+      timestamp = convertToRelativeTimestamp(value.updated_at),
       owner = value.repository.owner.login,
       full_name = value.repository.full_name,
       reason = value.reason,
@@ -313,12 +392,10 @@ M.setup = function(opts)
     end,
   }
 
-
   M.list = commands.list
   M.assigned = commands.assigned
   M.mention = commands.mention
   M.reviews = commands.reviews
-
 
   vim.api.nvim_create_user_command('GhNotify',
     function(commandOpts)
