@@ -17,6 +17,7 @@ local messages = require("gh-notify.messages")
 --- @field display string Used for telescope
 --- @field type_icon string
 --- @field reason_icon string
+--- @field timestamp string
 
 local M = {
   opts = require("gh-notify.options"),
@@ -218,6 +219,38 @@ local function trim(s)
   return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
+local function convertToRelativeTimestamp(dateTimeString)
+  -- Parse the date and time components from the input string
+  local year, month, day, hour, min, sec = dateTimeString:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)Z")
+
+  -- Convert the components to numbers
+  year, month, day, hour, min, sec = tonumber(year), tonumber(month), tonumber(day), tonumber(hour), tonumber(min),
+      tonumber(sec)
+
+  -- Convert the input time to UTC
+  local utcTime = os.time({ year = year, month = month, day = day, hour = hour, min = min, sec = sec })
+
+  -- Calculate the current time in UTC
+  local currentTime = os.time()
+
+  -- Calculate the time difference in seconds
+  local timeDifference = currentTime - utcTime
+
+  -- Convert the time difference to a relative timestamp
+  if timeDifference < 60 then
+    return "just now"
+  elseif timeDifference < 3600 then
+    local minutes = math.floor(timeDifference / 60)
+    return minutes .. " mins ago"
+  elseif timeDifference < 86400 then
+    local hours = math.floor(timeDifference / 3600)
+    return hours .. " hours ago"
+  else
+    local days = math.floor(timeDifference / 86400)
+    return days .. " days ago"
+  end
+end
+
 function M:on_event(data)
   if data[1] == "" or data[1] == nil then
     return
@@ -231,6 +264,7 @@ function M:on_event(data)
   local processed_messages = {}
   for _, value in pairs(newNotifications) do
     local context = {
+      timestamp = convertToRelativeTimestamp(value.updated_at),
       owner = value.repository.owner.login,
       full_name = value.repository.full_name,
       reason = value.reason,
