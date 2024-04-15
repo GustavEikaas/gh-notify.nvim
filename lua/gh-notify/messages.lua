@@ -121,18 +121,30 @@ end
 ---@param context Context
 ---@return Message
 M.mention = function(value, context)
-  local comment_url = value.subject.latest_comment_url
-  local comment = require("gh-notify.utils").executeCommandJson("gh api " .. comment_url)
-  local number = extract_pr_number_from_url(value.subject.url)
-  local header = comment.user.login ..
-      " mentioned you in " .. "#" .. extract_pr_number_from_url(value.subject.url) .. " " ..
-      value.subject.title
-  return {
-    number = number,
-    message = format_message(header, comment.body, context),
-    url = value.subject.url,
-    display = header
-  }
+  if context.type == "Issue" then
+    local comment_url = value.subject.latest_comment_url
+    local comment = require("gh-notify.utils").executeCommandJson("gh api " .. comment_url)
+    local number = extract_pr_number_from_url(value.subject.url)
+    local header = comment.user.login ..
+        " mentioned you in " .. "#" .. extract_pr_number_from_url(value.subject.url) .. " " ..
+        value.subject.title
+    return {
+      number = number,
+      message = format_message(header, comment.body, context),
+      url = value.subject.url,
+      display = header
+    }
+  else
+    local url = value.subject.url
+    local number = extract_pr_number_from_url(url)
+    local header = "Mentioned in " .. "#" .. extract_pr_number_from_url(value.subject.url) .. " " .. value.subject.title
+    return {
+      number = number,
+      message = format_message(header, "Mentioned in #" .. number, context),
+      url = value.subject.url,
+      display = header
+    }
+  end
 end
 
 return M
