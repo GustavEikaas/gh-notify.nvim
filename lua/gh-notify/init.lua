@@ -144,7 +144,7 @@ local function getDefaultMessage(context, id)
     message = "",
     display = "",
     reason_icon = getIconByReason(context.reason),
-    type_icon = context.type == "PullRequest" and "" or context.type == "Issue" and "" or ""
+    type_icon = context.type == "PullRequest" and "" or context.type == "Issue" and "" or context.type == "CheckSuite" and "" or ""
   }
 end
 
@@ -420,4 +420,5 @@ M.setup = function(opts)
   )
 end
 
+return M
 return M
