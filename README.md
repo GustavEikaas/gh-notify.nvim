@@ -1,37 +1,30 @@
 # gh-notify.nvim
 
+Receive and manage GitHub notifications directly within Neovim.
 
-## WIP 🚧🏗
-Not much too see here right now, but come back later and have a look
+## Introduction
 
-Get github notifications directly in neovim. Show, list, act on notifications directly from within neovim.
-
+Welcome to gh-notify.nvim! This Neovim plugin allows you to receive and manage GitHub notifications without leaving your editor.
 
 ## Features
 
-Supports the following events
-
-- [x] Mentioned
-- [x] Assigned
-- [x] state_change
-- [ ] approval_requested
-- [ ] assign
-- [ ] author
-- [ ] comment
-- [ ] ci_activity
-- [ ] manual
-- [x] review_requested
-- [ ] security_alert
-- [x] team_mention
-- [x] subscribed
-
-
-- [ ] Mark notifications as read
+- **Mentioned**: Receive notifications when you're mentioned in GitHub issues or pull requests.
+- **Assigned**: Get notified when someone assigns an issue or pull request to you.
+- **State Change**: Receive notifications when the state of an issue or pull request changes.
+- **Review Requested**: Get notified when someone requests your review on a pull request.
+- **Team Mention**: Receive notifications when your GitHub team is mentioned.
+- **Subscribed**: Get notified about activity on repositories you're subscribed to.
 
 ## Setup
 
-```lua
+Ensure you have the following dependencies installed:
 
+- [octo.nvim](https://github.com/pwntester/octo.nvim): Provides GitHub integration for Neovim.
+- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim): Enables interactive searching and browsing in Neovim.
+
+Add `gh-notify.nvim` to your Neovim configuration:
+
+```lua
 return {
   "GustavEikaas/gh-notify.nvim",
   dependencies = {'pwntester/octo.nvim', 'nvim-telescope/telescope.nvim', },
@@ -44,28 +37,26 @@ return {
 }
 ```
 
-
 ## Commands
 
+### Lua Functions
 
-### Lua functions
+- `notify.list()`: Open a Telescope picker with all notifications from the current repository.
+- `notify.mention()`: Open a Telescope picker with all mention notifications.
+- `notify.reviews()`: Open a Telescope picker with all review notifications.
+- `notify.refresh()`: Manually fetch new notifications.
+- `notify.assigned()`: Open a Telescope picker with all assigned notifications.
 
-```lua
-local notify = require("gh-notify")
-notify.list() -- Telescope picker with all notifications from current repo
-notify.mention() -- Telescope picker with all notifications of type mention
-notify.reviews() -- Telescope picker with all notifications of type review
-notify.refresh() -- Fetches new notifications
-notify.assigned() -- Telescope picker with all notifications of type assigned
+### Vim Commands
 
-```
+- `:GhNotify list`: List all notifications.
+- `:GhNotify refresh`: Manually refresh notifications.
+- `:GhNotify assigned`: List assigned notifications.
+- `:GhNotify mention`: List mention notifications.
+- `:GhNotify reviews`: List review notifications.
 
+## Example Usage
 
-### Vim commands
-```
-GhNotify list 
-GhNotify refresh
-GhNotify assigned
-GhNotify mention
-GhNotify reviews
-```
+1. After installing the plugin and its dependencies, open a Neovim session.
+2. Use the provided commands or functions to view and manage your GitHub notifications directly within Neovim.
+3. Stay focused and productive without switching between your editor and the GitHub website.
