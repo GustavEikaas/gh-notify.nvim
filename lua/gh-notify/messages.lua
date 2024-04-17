@@ -78,6 +78,19 @@ M.subscribed = function(value, context)
   }
 end
 
+---@param value table
+---@param context Context
+---@return Message
+M.ci_activity = function(value, context)
+  local msg = "Worklow run"
+  return {
+    message = format_message(msg, value.subject.title, context),
+    url = value.subject.url,
+    number = nil,
+    display = value.subject.title
+  }
+end
+
 ---@param title string
 ---@param context Context
 ---@return Message

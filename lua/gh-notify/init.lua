@@ -47,7 +47,7 @@ local messages = require("gh-notify.messages")
 --- @field repoName string -- e.g gh-notify.nvim
 --- @field owner string -- e.g GustavEikaas
 --- @field full_name string -- e.g GustavEikaas/gh-notify.nvim
---- @field type "PullRequest"|"Issue"
+--- @field type "PullRequest"|"Issue"|"CheckSuite"
 --- @field reason string
 --- @field is_from_this_repo boolean
 --- @field repo Repo
@@ -193,8 +193,8 @@ local function message_router(value, context)
     -- You commented on the thread
     -- TODO:
   elseif reason == "ci_activity" then
-    -- A github actions workflow run that you triggered completed
-    -- TODO:
+    local ci = messages.ci_activity(value, context)
+    return update_message(msg, ci)
   elseif reason == "manual" then
     -- You subscribed to the thread (via issue or pr)
     -- TODO:
