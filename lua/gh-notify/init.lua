@@ -421,4 +421,3 @@ M.setup = function(opts)
 end
 
 return M
-return M
